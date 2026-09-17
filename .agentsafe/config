@@ -1,0 +1,6 @@
+[agentsafe]
+profile = DEFAULT
+crypto_endpoint = https://grvktdrkaaehy-crypto.kms.us-sanjose-1.oci.oraclecloud.com
+key_id = ocid1.key.oc1.us-sanjose-1.grvktdrkaaehy.abzwuljr6fhmxtvuyy4qylxlebu62zbeangbcgkabbeimhucqwwaqgmzl2lq
+kms_provider = oci
+

@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "entries": {
+    "oauth-profile:0f06c2e8-47b5-42af-8133-c642f012e105": {
+      "provider": "oci",
+      "ciphertext": "Qa1wP4X1Drn6AM/wSurWLHudT+Dem1NM2RfTGR/mJueUbAt1XZDCZb581T9R1aS2X5eQLQLH6yXx3te4WLsfsDZYpXgyNjzkWB3Cs0VHWUi4zjt1wzS2s6QVztojP3HGnNOo+Sicy5n3GdpmiYUIdMd4JNy8Lf9NNbrwcHtA3tEDol/i1ETVIoAs17EuTuJU8YDzUj7dbGu7JnS6wBZ5B1PUrX2EdhZ6eSK3ofE2nbY/EtyO6DaDP61IpBtKzpWxb4Mck2F9yyqQiAPDaw2EstWpodI6UgY+R8X8VWLnl+4k+dt1RdVQr0XzVHqAgyzFfSLwSK7mW0z9iQKYmdiSve6tLc+eSXn1sjx+ihB3oezGkyou6V9laDw1JW5xjowUa/jiaAI5entNY8dJZKSwuX0ZWAhcSKhBjFgPGh6RhWPe0vYCu1JtvpKJlDgLAj1I78Oe6zxqNdXZvVMVQ6iAWNnXQZ4iakR78EKfCyK5l1ov9X7ka5om6I0Ibu6z0+GIhUL7fsiJUnaOuHXEr2b4O1Y2v+d06Aw+yAAAAAA=",
+      "metadata": {
+        "key_id": "ocid1.key.oc1.us-sanjose-1.grvktdrkaaehy.abzwuljr6fhmxtvuyy4qylxlebu62zbeangbcgkabbeimhucqwwaqgmzl2lq",
+        "key_version": "ocid1.keyversion.oc1.us-sanjose-1.grvktdrkaaehy.jsypnkuy5haaa.abzwuljrvp2eqstu74imyfv7ksxvdmxwpurperstntzif7vaanvr72xao42a"
+      }
+    },
+    "oauth-profile:9515a19c-43fc-4420-92ab-128b7ddd0648": {
+      "provider": "oci",
+      "ciphertext": "QW7WJVRS/qkjACfso8hMSmA1smCFioVZT1b1h4YgP52Lrq70Xs6cEKZ3gAU2ofwh/GV3NzUj7pAIAUZCBAwEMZPlLsOFE9lbt/XIek/H60sPkpF+9vZGt/RNrcFpKwvaSTv0pfPd2ijIuLl3DrofaNWhAeGCFiRQVIpNitx8wXYv1qyhPImh+0qotXanMqThxAeae4xAAUeoSVZYH7tFFn8HrHRQ3OLAtrjcLEHSoEtz/ZKcc7/Re7dMi68tApOoDuhG/L0stGG60QL7hhcWW37o52VPmjtuuqkthRrqHB5dSdKT8wMFYUuxoH8oCpXQoI5hT8R3QUEiskba0StsqllizwyR4uwQOuKKF8W+0KpDlkTLE1J7icdWAeV/24Mi0zCFYGoH4qesswbLcqz7V/rXVMC6xmdUaCymZaokYTgUoQEpVH+Q+bnGl3yJh0sqlzgyjxUqBbZyV3+vi+8UrUoyrpgukZe9tah5FZfNRknVIjPa+j9Xfm6UoItB9e6WEwbLrwMNeHuKfzpwDB/VnvnIU+PCDEzhw33pEnahRUYAAAAA",
+      "metadata": {
+        "key_id": "ocid1.key.oc1.us-sanjose-1.grvktdrkaaehy.abzwuljr6fhmxtvuyy4qylxlebu62zbeangbcgkabbeimhucqwwaqgmzl2lq",
+        "key_version": "ocid1.keyversion.oc1.us-sanjose-1.grvktdrkaaehy.jsypnkuy5haaa.abzwuljrvp2eqstu74imyfv7ksxvdmxwpurperstntzif7vaanvr72xao42a"
+      }
+    }
+  }
+}
