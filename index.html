@@ -1,0 +1,210 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>OAuth Playground</title><style>
+:root{--bg:#09111f;--line:#263752;--text:#edf4ff;--muted:#9aacc7;--cyan:#57d4ff;--green:#6de3b7}*{box-sizing:border-box}body{margin:0;background:radial-gradient(900px 500px at 8% -10%,#18396a 0%,transparent 66%),var(--bg);color:var(--text);font:14px/1.45 ui-sans-serif,system-ui}.shell{max-width:1320px;margin:auto;padding:30px 24px 56px}header{display:flex;justify-content:space-between;gap:20px;align-items:flex-start;margin-bottom:22px}.brand{display:flex;gap:13px;align-items:center}.mark{display:grid;place-items:center;width:42px;height:42px;border-radius:13px;background:linear-gradient(135deg,var(--cyan),#798cff);color:#07121f;font-weight:900;font-size:20px}.eyebrow{text-transform:uppercase;color:var(--cyan);font-size:11px;letter-spacing:.16em;font-weight:800}h1{font-size:28px;margin:2px 0 3px;letter-spacing:-.04em}header p,.sub{color:var(--muted);margin:0}.notice{max-width:420px;color:var(--muted);font-size:12px;border:1px solid var(--line);padding:10px 12px;border-radius:9px}.profiles{display:grid;grid-template-columns:1fr auto auto auto;gap:9px;align-items:end;margin-bottom:18px}.profiles label{margin:0}nav{display:flex;background:#0d1727;border:1px solid var(--line);border-radius:12px;padding:4px;gap:4px;margin-bottom:18px}nav button{background:transparent;border:0;color:var(--muted);padding:10px 14px;border-radius:8px;font:inherit;font-weight:700;cursor:pointer}nav button.active{background:#24344d;color:#fff}.grid{display:grid;grid-template-columns:minmax(0,1.12fr) minmax(360px,.88fr);gap:18px}.card{background:linear-gradient(145deg,#142238,#101a2b);border:1px solid var(--line);border-radius:14px;padding:20px;box-shadow:0 14px 30px #0002}.card h2{font-size:16px;margin:0 0 4px}.fields{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px}.full{grid-column:1/-1}label{display:block;color:#bdd0eb;font-size:12px;font-weight:700}input,select,textarea{display:block;width:100%;margin-top:5px;background:#0a1423;border:1px solid #344764;border-radius:7px;padding:9px 10px;color:var(--text);font:13px ui-monospace,monospace}textarea{min-height:64px;resize:vertical}.row{display:flex;gap:8px;align-items:center;margin-top:16px;flex-wrap:wrap}button{font:inherit}.primary,.secondary,.danger{border:0;border-radius:8px;padding:10px 13px;cursor:pointer;font-weight:800}.primary{background:linear-gradient(135deg,var(--cyan),#82a5ff);color:#081323}.secondary{background:#22344e;color:#e5efff;border:1px solid #405573}.danger{background:#432332;color:#ffd8dd}.hint{color:var(--muted);font-size:12px}.flow{display:none}.flow.active{display:block}.callback{border-color:#4b866f;background:#112a2d;margin-bottom:18px}.callback h2{color:var(--green)}.pill{display:inline-block;font-size:10px;text-transform:uppercase;letter-spacing:.08em;padding:3px 7px;border-radius:20px;background:#213855;color:var(--cyan);font-weight:800}.steps{padding:0;margin:18px 0 0;list-style:none;counter-reset:step}.steps li{position:relative;padding:0 0 15px 35px;color:var(--muted);counter-increment:step}.steps li:before{content:counter(step);position:absolute;left:0;top:-2px;width:23px;height:23px;border-radius:50%;display:grid;place-items:center;background:#233652;color:var(--cyan);font-size:11px;font-weight:800}.trace-tools{display:flex;gap:8px;align-items:center;margin-top:18px}.trace-tools label{margin-left:auto;font-size:11px;display:flex;align-items:center;gap:5px}.trace-tools input{width:auto;margin:0}.trace{margin-top:10px;max-height:590px;overflow:auto}.trace-entry{border:1px solid #2d405d;background:#091421;border-radius:8px;margin-bottom:8px}.trace-entry summary{padding:9px 10px;cursor:pointer;color:#cde1fa;font:12px ui-monospace,monospace}.trace-entry pre{margin:0;border-top:1px solid #2d405d;padding:11px;color:#b9d6f2;font:11px/1.5 ui-monospace,monospace;white-space:pre-wrap;word-break:break-word}.empty{color:var(--muted);padding:18px 3px}@media(max-width:850px){.grid{grid-template-columns:1fr}.fields,.profiles{grid-template-columns:1fr}header{display:block}.notice{margin-top:15px}}
+</style></head><body><main class="shell"><header><div class="brand"><div class="mark">O</div><div><div class="eyebrow">Local developer utility</div><h1>OAuth Playground</h1><p>Exercise OIDC and OAuth flows against any authorization server.</p></div></div><div class="notice">Saved profile client secrets are encrypted in local <code>appconfig</code> using OCI KMS via <code>agentsafe</code>. They are never returned to the browser. Use test credentials only. Request traces are retained in this browser session.</div></header>
+<section class="card profiles"><label>Server profile <select id="profile"><option value="">New / unsaved configuration</option></select></label><button class="secondary" id="newProfile">New</button><button class="primary" id="saveProfile">Save profile</button><button class="danger" id="deleteProfile">Delete</button></section>
+<nav><button class="active" data-flow="oidc">OIDC · Authorization Code + PKCE</button><button data-flow="twoleg">2-legged · Client Credentials</button><button data-flow="threeleg">3-legged · Custom OAuth</button><button data-flow="idjag">ID token → ID-JAG token</button><button data-flow="jagaccess">ID-JAG token → Access token</button></nav><section id="callback" class="card callback" hidden><h2>Callback received</h2><p class="sub" id="callbackText"></p><div class="row"><button class="primary" id="exchange">Exchange code for tokens</button><button class="secondary" id="dismiss">Dismiss</button></div></section>
+<div class="grid"><section class="card"><div class="flow active" id="oidc"><h2>OpenID Connect sign-in</h2><p class="sub">Authorization Code with PKCE, state and nonce.</p><div class="fields common"></div><div class="fields"><label class="full">OIDC scopes <input data-key="oidcScopes" value="openid" placeholder="openid profile email api.read"></label><label>Nonce <input data-key="nonce" placeholder="generated automatically"></label><label>Prompt <select data-key="prompt"><option value="">Provider default</option><option selected>login</option><option>consent</option><option>select_account</option></select></label></div><div class="row"><button class="primary authorize">Start OIDC sign-in →</button></div></div>
+<div class="flow" id="twoleg"><h2>2-legged OAuth</h2><p class="sub">Machine-to-machine access using Client Credentials.</p><div class="fields common"></div><div class="fields"><label class="full">Custom scopes <input data-key="customScopes" value="urn:opc:idm:__myscopes__" placeholder="api.read api.write"></label><label>Client authentication <select data-key="clientAuth"><option value="basic">HTTP Basic</option><option value="body">Request body</option></select></label></div><div class="row"><button class="primary token">Request access token →</button></div></div>
+<div class="flow" id="threeleg"><h2>3-legged OAuth</h2><p class="sub">User-delegated Authorization Code flow with custom scopes.</p><div class="fields common"></div><div class="fields"><label class="full">Custom scopes <input data-key="customScopes" value="urn:opc:idm:__myscopes__" placeholder="payments.read customers.write"></label><label>Additional authorization parameters <textarea data-key="extra" placeholder="audience=https://api.example.com&#10;resource=https://api.example.com"></textarea></label></div><div class="row"><button class="primary authorize">Ask for consent →</button></div></div>
+<div class="flow" id="idjag"><h2>ID token to ID-JAG token</h2><p class="sub">RFC 8693 token exchange using an ID token as the subject token.</p><div class="fields"><label class="full">Token endpoint <input data-key="tokenEndpoint" placeholder="https://issuer.example.com/oauth2/v1/token"></label><label>Client ID <input data-key="clientId" placeholder="your-client-id"></label><label>Client secret <input data-key="clientSecret" type="password" placeholder="client secret"></label><label>Client authentication <select data-key="clientAuth"><option value="basic">HTTP Basic</option><option value="body">Request body</option></select></label><label class="full">ID token <textarea data-key="idToken" placeholder="Paste the encoded ID token"></textarea></label><label>Scope <input data-key="customScopes" placeholder="https://api.example.com/read"></label><label>Resource <input data-key="extra" placeholder="https://api.example.com/"></label></div><div class="row"><button class="primary" id="exchangeIdJag">Exchange for ID-JAG token →</button></div></div>
+<div class="flow" id="jagaccess"><h2>ID-JAG token to Access token</h2><p class="sub">JWT bearer exchange against the target domain.</p><div class="fields"><label class="full">Target token endpoint <input data-key="tokenEndpoint" placeholder="https://target-domain.example.com/oauth2/v1/token"></label><label>Client ID <input data-key="clientId" placeholder="your-client-id"></label><label>Client secret <input data-key="clientSecret" type="password" placeholder="client secret"></label><label>Client authentication <select data-key="clientAuth"><option value="basic">HTTP Basic</option><option value="body">Request body</option></select></label><label class="full">ID-JAG token <textarea data-key="idJagToken" placeholder="Paste the encoded ID-JAG token"></textarea></label><label class="full">Scope <input data-key="customScopes" placeholder="https://api.example.com/read"></label></div><div class="row"><button class="primary" id="exchangeJagAccess">Exchange for access token →</button></div></div></section>
+<aside class="card"><span class="pill" id="status">Ready</span><h2 style="margin-top:12px">Request trace</h2><p class="sub">The full flow is retained while this browser tab remains open.</p><ol class="steps" id="steps"></ol><div class="trace-tools"><button class="secondary" id="copyTrace">Copy trace</button><button class="secondary" id="clearTrace">Clear</button><label><input type="checkbox" id="showSecrets"> Show secrets</label></div><div class="trace" id="trace"></div></aside></div></main>
+<template id="common"><label class="full">Authorization endpoint <input data-key="authorizationEndpoint" placeholder="https://issuer.example.com/oauth2/authorize"></label><label class="full">Token endpoint <input data-key="tokenEndpoint" placeholder="https://issuer.example.com/oauth2/token"></label><label>Client ID <input data-key="clientId" placeholder="your-client-id"></label><label>Client secret <input data-key="clientSecret" type="password" placeholder="optional for public clients"></label><label class="full">Redirect URI <input data-key="redirectUri" value="http://localhost:5177/"></label></template>
+<script>
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];let flow='oidc',profiles=[],activeProfile='',trace=[];
+const steps={oidc:[['Generate PKCE','Create verifier, challenge, state and nonce locally.'],['Redirect','Send authorization request to the provider.'],['Callback','Validate state and capture code.'],['Exchange','Relay code and verifier to token endpoint.']],twoleg:[['Prepare','Build client credentials request.'],['Exchange','Relay Client Credentials request.'],['Inspect','Review token response.']],threeleg:[['Generate PKCE','Create verifier, challenge and state locally.'],['Consent','Redirect with custom scopes.'],['Callback','Validate state and capture code.'],['Exchange','Request delegated tokens.']]};
+function redact(v,k=''){if($('#showSecrets').checked)return v;if(/secret|token|authorization|verifier|code|nonce/i.test(k)&&!/Endpoint$/i.test(k))return typeof v==='string'&&v?`${v.slice(0,4)}… [redacted]`:v;if(v&&typeof v==='object')return Object.fromEntries(Object.entries(v).map(([x,y])=>[x,redact(y,x)]));return v}function esc(s){return s.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]))}function renderTrace(){const b=$('#trace');b.innerHTML=trace.length?trace.map((e,i)=>`<details class="trace-entry" ${i===trace.length-1?'open':''}><summary>${e.at.slice(11,19)} · ${e.kind}</summary><pre>${esc(JSON.stringify(redact(e.data),null,2))}</pre></details>`).join(''):'<p class="empty">No requests yet.</p>'}function addTrace(kind,data){trace.push({at:new Date().toISOString(),kind,data});renderTrace()}function setStatus(x){$('#status').textContent=x}function setSteps(){$('#steps').innerHTML=steps[flow].map(([a,b])=>`<li><strong>${a}</strong>${b}</li>`).join('')}function value(k){return $(`#${flow} [data-key="${k}"]`)?.value.trim()||''}function fields(){const f={authorizationEndpoint:value('authorizationEndpoint'),tokenEndpoint:value('tokenEndpoint'),clientId:value('clientId'),clientSecret:value('clientSecret'),redirectUri:value('redirectUri'),clientAuth:value('clientAuth')||'basic',nonce:value('nonce'),prompt:value('prompt'),extra:value('extra')};f.scopes=flow==='oidc'?value('oidcScopes'):value('customScopes');return f}function enc(a){return btoa(String.fromCharCode(...new Uint8Array(a))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=/g,'')}function random(){return enc(crypto.getRandomValues(new Uint8Array(32)))}async function challenge(v){return enc(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(v)))}function fillCommon(){$$('.common').forEach(x=>x.append($('#common').content.cloneNode(true)))}fillCommon();setSteps();renderTrace();
+function profileData(){return {id:activeProfile||crypto.randomUUID(),name:$('#profile').selectedOptions[0]?.textContent||'New profile',authorizationEndpoint:value('authorizationEndpoint'),tokenEndpoint:value('tokenEndpoint'),clientId:value('clientId'),clientSecret:value('clientSecret'),redirectUri:value('redirectUri'),clientAuth:value('clientAuth')||'basic',oidcScopes:value('oidcScopes'),customScopes:value('customScopes'),nonce:value('nonce'),prompt:value('prompt'),extra:value('extra')}}function applyProfile(p){Object.entries(p).forEach(([k,v])=>$$(`[data-key="${k}"]`).forEach(x=>x.value=v||''));activeProfile=p.id;$('#profile').value=p.id;addTrace('Profile loaded',{name:p.name,id:p.id})}function renderProfiles(){const s=$('#profile');s.innerHTML='<option value="">New / unsaved configuration</option>'+profiles.map(p=>`<option value="${p.id}">${esc(p.name)}</option>`).join('');if(activeProfile)s.value=activeProfile}async function loadProfiles(){profiles=await (await fetch('/api/profiles')).json();renderProfiles()}$('#profile').onchange=e=>{const p=profiles.find(x=>x.id===e.target.value);if(p)applyProfile(p);else activeProfile=''};$('#newProfile').onclick=()=>{activeProfile='';$('#profile').value='';$$('[data-key]').forEach(x=>{if(x.dataset.key!=='redirectUri')x.value=''});addTrace('New profile',{})};$('#saveProfile').onclick=async()=>{let old=profiles.find(x=>x.id===activeProfile),name=prompt('Profile name',old?.name||'');if(!name)return;const p={...profileData(),name},r=await fetch('/api/profiles',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(p)});if(!r.ok)return addTrace('Profile save failed',await r.json());activeProfile=p.id;await loadProfiles();$('#profile').value=p.id;addTrace('Profile saved',{name,id:p.id})};$('#deleteProfile').onclick=async()=>{if(!activeProfile)return;const p=profiles.find(x=>x.id===activeProfile);if(!confirm(`Delete profile “${p?.name}”?`))return;await fetch(`/api/profiles/${activeProfile}`,{method:'DELETE'});addTrace('Profile deleted',{name:p?.name,id:activeProfile});activeProfile='';await loadProfiles()};
+$$('nav button').forEach(b=>b.onclick=()=>{flow=b.dataset.flow;$$('nav button').forEach(x=>x.classList.toggle('active',x===b));$$('.flow').forEach(x=>x.classList.toggle('active',x.id===flow));setSteps();setStatus('Ready');addTrace('Flow selected',{flow})});async function startAuthorization(){const f=fields();if(!f.authorizationEndpoint||!f.clientId)return addTrace('Validation error',{error:'Authorization endpoint and client ID are required.'});const verifier=random(),state=random(),nonce=f.nonce||random(),q=new URLSearchParams({response_type:'code',client_id:f.clientId,redirect_uri:f.redirectUri,scope:f.scopes,state,code_challenge:await challenge(verifier),code_challenge_method:'S256'});if(flow==='oidc')q.set('nonce',nonce);if(f.prompt)q.set('prompt',f.prompt);if(f.extra)f.extra.split(/\n+/).forEach(line=>{const[k,...v]=line.split('=');if(k&&v.length)q.set(k.trim(),v.join('=').trim())});const url=`${f.authorizationEndpoint}?${q}`;sessionStorage.setItem('oauth-playground-pending',JSON.stringify({...f,flow,verifier,state,nonce,trace}));addTrace('Authorization request',{method:'GET',url,parameters:Object.fromEntries(q)});setStatus('Redirecting');location.assign(url)}async function requestToken(pending,params){setStatus('Requesting token');addTrace('Token request to local relay',{method:'POST',url:'/api/token',body:{...pending,params}});try{const r=await fetch('/api/token',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({...pending,params})}),data=await r.json();setStatus(r.ok?'Token received':'Request failed');addTrace('Token response',{status:r.status,body:data})}catch(e){setStatus('Request failed');addTrace('Token request failure',{error:e.message})}}$$('.authorize').forEach(b=>b.onclick=startAuthorization);$$('.token').forEach(b=>b.onclick=()=>{const f=fields();if(!f.tokenEndpoint||!f.clientId)return addTrace('Validation error',{error:'Token endpoint and client ID are required.'});requestToken(f,{grant_type:'client_credentials',scope:f.scopes})});$('#showSecrets').onchange=renderTrace;$('#clearTrace').onclick=()=>{trace=[];renderTrace()};$('#copyTrace').onclick=()=>navigator.clipboard.writeText(JSON.stringify(trace,null,2)).then(()=>setStatus('Trace copied'));
+const query=new URLSearchParams(location.search),pending=JSON.parse(sessionStorage.getItem('oauth-playground-pending')||'null');if(pending?.trace)trace=pending.trace;if(query.has('code')||query.has('error')){$('#callback').hidden=false;const valid=pending&&query.get('state')===pending.state;$('#callbackText').textContent=query.get('error')?`Provider returned ${query.get('error')}: ${query.get('error_description')||''}`:`Authorization code received. ${valid?'State validated.':'State could not be validated.'}`;addTrace('Authorization callback',{parameters:Object.fromEntries(query),stateValid:valid});$('#exchange').onclick=()=>{if(!pending||!valid)return addTrace('Exchange blocked',{error:'State mismatch or no saved pending flow.'});requestToken(pending,{grant_type:'authorization_code',code:query.get('code'),redirect_uri:pending.redirectUri,code_verifier:pending.verifier})};$('#dismiss').onclick=()=>{history.replaceState({},'',location.pathname);$('#callback').hidden=true}}loadProfiles().catch(e=>addTrace('Profile loading failed',{error:e.message}));
+</script><script>
+/* Callback guard: an OAuth error is not exchangeable, even if a state value exists. */
+const callbackQuery = new URLSearchParams(location.search);
+const callbackPending = JSON.parse(sessionStorage.getItem('oauth-playground-pending') || 'null');
+const callbackStateIsValid = Boolean(callbackPending && callbackQuery.get('state') === callbackPending.state);
+if (callbackQuery.has('error')) {
+  $('#exchange').hidden = true;
+  setStatus('Authorization error — no code');
+  addTrace('Token exchange unavailable', {reason:'Authorization server returned an error; no authorization code was issued.', error:callbackQuery.get('error')});
+} else if (callbackQuery.has('code') && !callbackStateIsValid) {
+  $('#exchange').hidden = true;
+  setStatus('State validation failed');
+  addTrace('Token exchange blocked', {reason:'The saved PKCE session is missing or the returned state does not match.'});
+}
+</script><script>
+fetch('/api/secrets-status').then(async response => {
+  const status = await response.json();
+  if (status.ready) return;
+  const banner = document.createElement('section');
+  banner.className = 'card';
+  banner.style.cssText = 'margin-bottom:18px;border-color:#a56c2b;background:#2b2114;color:#ffe2ad';
+  banner.innerHTML = '<strong>Encrypted profile storage is not configured.</strong><br><span class="hint"></span>';
+  banner.querySelector('span').textContent = status.error;
+  document.querySelector('header').after(banner);
+  setStatus('Profile storage setup required');
+  addTrace('Encrypted profile storage unavailable', {code:status.code, error:status.error});
+}).catch(error => addTrace('Encrypted profile storage check failed', {error:error.message}));
+</script><script>
+/* Show the actual returned tokens separately; request traces remain redacted by default. */
+let latestTokenResult = null;
+const tokenResultsByFlow = {};
+const tokenView = {idToken: 'encoded', accessToken: 'encoded'};
+const tokenResponseLayout = {
+  oidc: {showIdToken: true, tokenLabel: 'Access token'},
+  twoleg: {showIdToken: false, tokenLabel: 'Access token'},
+  threeleg: {showIdToken: false, tokenLabel: 'Access token'},
+  idjag: {showIdToken: false, tokenLabel: 'ID-JAG token'},
+  jagaccess: {showIdToken: false, tokenLabel: 'Access token'},
+};
+function tokenResultPanel() {
+  let panel = document.querySelector('#tokenResult');
+  if (panel) return panel;
+  panel = document.createElement('section');
+  panel.id = 'tokenResult';
+  panel.className = 'card';
+  panel.style.marginTop = '18px';
+  panel.innerHTML = `<h2>Token exchange response</h2><p class="sub" id="tokenResultStatus"></p>
+    <div class="fields" style="margin-top:16px">
+      <section class="card" id="idTokenCard" style="padding:14px"><div class="row" style="margin-top:0;justify-content:space-between"><h3 style="margin:0">ID token</h3><button class="secondary" id="copyIdToken">Copy encoded token</button></div><label class="hint"><input type="checkbox" id="decodeIdToken"> Show decoded token</label><pre id="idTokenValue" style="max-height:260px;overflow:auto;background:#07111e;padding:12px;border-radius:8px;white-space:pre-wrap;word-break:break-word"></pre></section>
+      <section class="card" style="padding:14px"><div class="row" style="margin-top:0;justify-content:space-between"><h3 id="accessTokenLabel" style="margin:0">Access token</h3><button class="secondary" id="copyAccessToken">Copy encoded token</button></div><label class="hint"><input type="checkbox" id="decodeAccessToken"> Show decoded token</label><pre id="accessTokenValue" style="max-height:260px;overflow:auto;background:#07111e;padding:12px;border-radius:8px;white-space:pre-wrap;word-break:break-word"></pre></section>
+    </div><pre id="tokenResultError" hidden style="margin-top:14px;max-height:180px;overflow:auto;background:#07111e;padding:12px;border-radius:8px;white-space:pre-wrap;word-break:break-word"></pre>`;
+  document.querySelector('#callback').after(panel);
+  panel.querySelector('#decodeIdToken').onchange = event => { tokenView.idToken = event.target.checked ? 'decoded' : 'encoded'; renderTokenResult(); };
+  panel.querySelector('#decodeAccessToken').onchange = event => { tokenView.accessToken = event.target.checked ? 'decoded' : 'encoded'; renderTokenResult(); };
+  panel.querySelector('#copyIdToken').onclick = () => copyEncodedToken('id_token');
+  panel.querySelector('#copyAccessToken').onclick = () => copyEncodedToken('access_token');
+  return panel;
+}
+function decodeJwt(token) {
+  const pieces = token.split('.');
+  if (pieces.length !== 3) throw new Error('This token is opaque or is not a JWT.');
+  const decodePart = part => { const normalized = part.replace(/-/g, '+').replace(/_/g, '/'); return JSON.parse(new TextDecoder().decode(Uint8Array.from(atob(normalized + '='.repeat((4 - normalized.length % 4) % 4)), c => c.charCodeAt(0)))); };
+  return {header: decodePart(pieces[0]), payload: decodePart(pieces[1]), note: 'Decoded locally; signature not verified.'};
+}
+function tokenDisplay(token, view) {
+  if (!token) return 'Not returned by the token endpoint.';
+  if (view === 'encoded') return token;
+  try { return JSON.stringify(decodeJwt(token), null, 2); } catch (error) { return error.message; }
+}
+function copyEncodedToken(key) {
+  const token = latestTokenResult?.body?.[key];
+  if (!token) return setStatus(`No ${key === 'id_token' ? 'ID' : 'access'} token to copy`);
+  navigator.clipboard.writeText(token).then(() => setStatus(`${key === 'id_token' ? 'ID' : 'Access'} token copied`));
+}
+function renderTokenResult() {
+  latestTokenResult = tokenResultsByFlow[flow] || null;
+  const existingPanel = document.querySelector('#tokenResult');
+  if (!latestTokenResult) {
+    if (existingPanel) existingPanel.hidden = true;
+    return;
+  }
+  const {status, body} = latestTokenResult, panel = tokenResultPanel();
+  panel.hidden = false;
+  const layout = tokenResponseLayout[flow] || tokenResponseLayout.oidc;
+  panel.querySelector('#tokenResultStatus').textContent = `HTTP ${status}`;
+  panel.querySelector('#idTokenCard').hidden = !layout.showIdToken;
+  panel.querySelector('#accessTokenLabel').textContent = layout.tokenLabel;
+  panel.querySelector('#idTokenValue').textContent = tokenDisplay(body.id_token, tokenView.idToken);
+  panel.querySelector('#accessTokenValue').textContent = tokenDisplay(body.access_token, tokenView.accessToken);
+  panel.querySelector('#decodeIdToken').checked = tokenView.idToken === 'decoded';
+  panel.querySelector('#decodeAccessToken').checked = tokenView.accessToken === 'decoded';
+  const error = panel.querySelector('#tokenResultError');
+  const hasTokens = body.id_token || body.access_token;
+  error.hidden = Boolean(hasTokens);
+  if (!hasTokens) error.textContent = JSON.stringify(redact(body), null, 2);
+}
+function showTokenResult(status, body, resultFlow = flow) {
+  tokenResultsByFlow[resultFlow] = {status, body};
+  if (resultFlow === flow) renderTokenResult();
+}
+requestToken = async (pendingConfig, params, relayPath = '/api/token', endpointPayload = {}) => {
+  const requestFlow = pendingConfig?.flow || flow;
+  if (!params.code && params.grant_type === 'authorization_code') {
+    setStatus('No authorization code');
+    addTrace('Token exchange blocked', {error:'The callback did not contain an authorization code.'});
+    showTokenResult(400, {error:'No authorization code was available to exchange.'}, requestFlow);
+    return;
+  }
+  const button = document.querySelector('#exchange');
+  if (button) { button.disabled = true; button.textContent = 'Exchanging…'; }
+  setStatus('Requesting token');
+  // ``trace`` is browser-only state and can contain this very trace entry.
+  // Never include it in the request or the trace payload.
+  const {trace: _browserTrace, ...requestConfig} = pendingConfig || {};
+  const relayPayload = {...requestConfig, ...endpointPayload, params};
+  addTrace('Token request to local relay', {method:'POST', url:relayPath, body:relayPayload});
+  try {
+    const response = await fetch(relayPath, {method:'POST', headers:{'content-type':'application/json'}, body:JSON.stringify(relayPayload)});
+    const text = await response.text();
+    let body;
+    try { body = JSON.parse(text); } catch { body = {raw:text}; }
+    setStatus(response.ok ? 'Token received' : 'Token request failed');
+    addTrace('Token response', {status:response.status, body});
+    showTokenResult(response.status, body, requestFlow);
+    if (response.ok) document.querySelector('#callback')?.remove();
+  } catch (error) {
+    setStatus('Token request failed');
+    const body = {error:error.message};
+    addTrace('Token request failure', body);
+    showTokenResult(0, body, requestFlow);
+  } finally {
+    if (button) { button.disabled = false; button.textContent = 'Exchange code for tokens'; }
+  }
+};
+</script><script>
+/* Profile-specific state belongs in the normal functions, without deferred wrappers. */
+const baseFields = fields;
+fields = () => ({...baseFields(), profileId: activeProfile});
+function setFlowDefaults() {
+  $('#oidc [data-key="oidcScopes"]').value = 'openid';
+  $('#oidc [data-key="nonce"]').value = '';
+  $('#oidc [data-key="prompt"]').value = 'login';
+  $('#twoleg [data-key="customScopes"]').value = 'urn:opc:idm:__myscopes__';
+  $('#threeleg [data-key="customScopes"]').value = 'urn:opc:idm:__myscopes__';
+  $('#threeleg [data-key="extra"]').value = '';
+  $$('[data-key="clientAuth"]').forEach(input => { input.value = 'basic'; });
+}
+const baseApplyProfile = applyProfile;
+applyProfile = profile => {
+  setFlowDefaults();
+  baseApplyProfile(profile);
+  $$('[data-key="clientSecret"]').forEach(input => {
+    input.value = '';
+    input.placeholder = profile.hasClientSecret ? 'Stored securely — enter a new value to replace' : 'optional for public clients';
+  });
+};
+$('#newProfile').onclick = () => {
+  activeProfile = '';
+  $('#profile').value = '';
+  $$('[data-key]').forEach(input => { if (input.dataset.key !== 'redirectUri') input.value = ''; });
+  setFlowDefaults();
+  addTrace('New profile', {});
+};</script><script>
+steps.idjag = [['Prepare', 'Provide an ID token and token-exchange parameters.'], ['Exchange', 'Relay the RFC 8693 request.'], ['Inspect', 'Review the returned ID-JAG token.']];
+steps.jagaccess = [['Prepare', 'Provide an ID-JAG token and target-domain client configuration.'], ['Exchange', 'Relay the JWT bearer request.'], ['Inspect', 'Review the returned access token.']];
+$('#exchangeIdJag').onclick = () => {
+  const config = fields(), idToken = value('idToken');
+  if (!config.tokenEndpoint || !config.clientId || !idToken) {
+    addTrace('Validation error', {error:'Token endpoint, client ID, and ID token are required.'});
+    return;
+  }
+  requestToken(config, {}, '/api/id-token-to-id-jag', {
+    idToken,
+    scope: config.scopes,
+    resource: config.extra,
+  });
+};
+$('#exchangeJagAccess').onclick = () => {
+  const config = fields(), idJagToken = value('idJagToken');
+  if (!config.tokenEndpoint || !config.clientId || !idJagToken) {
+    addTrace('Validation error', {error:'Target token endpoint, client ID, and ID-JAG token are required.'});
+    return;
+  }
+  requestToken(config, {}, '/api/id-jag-to-access-token', {
+    idJagToken,
+    scope: config.scopes,
+  });
+};
+/* Keep the visible response aligned with the active flow after tab changes. */
+$$('nav button').forEach(button => button.addEventListener('click', renderTokenResult));
+</script></body></html>

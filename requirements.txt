@@ -1,0 +1,1 @@
+agentconfigsafe[oci]==0.2.0

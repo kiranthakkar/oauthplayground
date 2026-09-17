@@ -1,0 +1,6 @@
+appconfig
+appconfig.lock
+profiles.json
+venv/
+.agentsafe/
+__pycache__/
