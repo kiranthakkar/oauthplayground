@@ -9,7 +9,7 @@ from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.error import HTTPError, URLError
 from urllib.parse import urlencode, urlsplit
-from urllib.request import Request, urlopen
+from urllib.request import HTTPRedirectHandler, Request, build_opener, urlopen
 
 from agentsafe import AgentSafe, AgentSafeError, KeyNotFoundError
 
@@ -31,6 +31,83 @@ REQUIRED_AGENTSAFE_SETTINGS = ("profile", "crypto_endpoint", "key_id")
 
 class SecretStoreNotInitialized(AgentSafeError):
     """Raised before an OCI KMS operation when AgentSafe has no usable configuration."""
+
+
+def https_url(value, label):
+    """Validate discovery URLs before fetching or applying them."""
+    if not isinstance(value, str) or not value.strip():
+        raise ValueError(f"{label} is required.")
+    value = value.strip()
+    parsed = urlsplit(value)
+    if (parsed.scheme != "https" or not parsed.hostname or parsed.username is not None
+            or parsed.password is not None or parsed.fragment
+            or any(character.isspace() or ord(character) < 32 for character in value)):
+        raise ValueError(f"{label} must be an HTTPS URL without credentials or a fragment.")
+    # Accessing port also validates malformed port values.
+    parsed.port
+    return value
+
+
+class HTTPSDiscoveryRedirectHandler(HTTPRedirectHandler):
+    def redirect_request(self, request, fp, code, message, headers, new_url):
+        https_url(new_url, "Metadata redirect URL")
+        return super().redirect_request(request, fp, code, message, headers, new_url)
+
+
+class ProtectedResourceRedirectHandler(HTTPRedirectHandler):
+    def redirect_request(self, request, fp, code, message, headers, new_url):
+        # Return the redirect for inspection instead of forwarding the bearer token.
+        return None
+
+
+def read_resource_response(response, status):
+    body = response.read(5 * 1024 * 1024 + 1)
+    if len(body) > 5 * 1024 * 1024:
+        raise ValueError("The resource response is too large (maximum 5 MiB).")
+    text = body.decode("utf-8", errors="replace")
+    try:
+        result = json.loads(text)
+    except ValueError:
+        result = text
+    return {"status": status, "contentType": response.headers.get("Content-Type", ""), "body": result}
+
+
+def access_protected_resource(payload):
+    if not isinstance(payload, dict):
+        raise ValueError("A JSON object with resourceEndpoint and accessToken is required.")
+    endpoint = https_url(payload.get("resourceEndpoint"), "Protected resource URL")
+    token = payload.get("accessToken")
+    if not isinstance(token, str) or not token or any(not 33 <= ord(character) <= 126 for character in token):
+        raise ValueError("An access token without whitespace or control characters is required.")
+    request = Request(endpoint, headers={"Accept": "application/json", "Authorization": f"Bearer {token}"}, method="GET")
+    opener = build_opener(ProtectedResourceRedirectHandler())
+    try:
+        with opener.open(request, timeout=30) as response:
+            return read_resource_response(response, response.status)
+    except HTTPError as error:
+        # Preserve upstream errors/redirects as resource responses, without logging their bodies.
+        with error:
+            return read_resource_response(error, error.code)
+
+
+def discover_endpoints(metadata_url):
+    metadata_url = https_url(metadata_url, "OpenID configuration URL")
+    request = Request(metadata_url, headers={"Accept": "application/json"})
+    opener = build_opener(HTTPSDiscoveryRedirectHandler())
+    with opener.open(request, timeout=15) as response:
+        body = response.read(1024 * 1024 + 1)
+    if len(body) > 1024 * 1024:
+        raise ValueError("The metadata document is too large (maximum 1 MiB).")
+    try:
+        metadata = json.loads(body)
+    except (ValueError, UnicodeDecodeError):
+        raise ValueError("The metadata URL did not return valid JSON.") from None
+    if not isinstance(metadata, dict):
+        raise ValueError("The metadata document must be a JSON object.")
+    return {
+        "authorizationEndpoint": https_url(metadata.get("authorization_endpoint"), "authorization_endpoint"),
+        "tokenEndpoint": https_url(metadata.get("token_endpoint"), "token_endpoint"),
+    }
 
 
 def now():
@@ -236,6 +313,26 @@ class PlaygroundHandler(SimpleHTTPRequestHandler):
         return super().do_GET()
 
     def do_POST(self):
+        if self.path == "/api/resource":
+            try:
+                # The envelope carries the upstream status, including 204 and non-2xx responses.
+                return self.send_json(200, access_protected_resource(self.read_body()))
+            except (URLError, TimeoutError, OSError):
+                return self.send_json(502, {"error": "Could not access the protected resource. Check the URL and network connection."})
+            except ValueError as error:
+                return self.send_json(400, {"error": str(error)})
+        if self.path == "/api/discovery":
+            try:
+                payload = self.read_body()
+                if not isinstance(payload, dict):
+                    raise ValueError("A JSON object with metadataUrl is required.")
+                return self.send_json(200, discover_endpoints(payload.get("metadataUrl")))
+            except HTTPError as error:
+                return self.send_json(502, {"error": f"Metadata request failed (HTTP {error.code})."})
+            except (URLError, TimeoutError, OSError):
+                return self.send_json(502, {"error": "Could not fetch metadata. Check the URL and network connection."})
+            except ValueError as error:
+                return self.send_json(400, {"error": str(error)})
         if self.path == "/api/profiles":
             try:
                 return self.send_json(200, self.save_profile(self.read_body()))
@@ -279,9 +376,20 @@ class PlaygroundHandler(SimpleHTTPRequestHandler):
                 }
             else:
                 params = dict(payload.get("params", {}))
+                if params.get("grant_type") == "refresh_token":
+                    refresh_token = params.get("refresh_token")
+                    if not isinstance(refresh_token, str) or not refresh_token.strip():
+                        raise ValueError("A refresh token is required.")
+                    if profile_id and any(payload.get(key) != config.get(key) for key in ("tokenEndpoint", "clientId")):
+                        raise ValueError("The saved profile connection has changed. Start a new OIDC sign-in before refreshing.")
+                    # Refreshes reuse the grant, never the original authorization code or verifier.
+                    params = {key: params[key] for key in ("grant_type", "refresh_token", "scope") if key in params}
             client_id, secret = config.get("clientId", ""), config.get("clientSecret", "")
             headers = {"Accept": "application/json", "Content-Type": "application/x-www-form-urlencoded"}
-            client_auth = config.get("clientAuth", "basic")
+            # The form chooses authentication per exchange; saved profiles supply credentials.
+            client_auth = payload.get("clientAuth", config.get("clientAuth", "basic"))
+            if client_auth not in ("basic", "body"):
+                raise ValueError("Client authentication must be basic or body.")
             if client_auth == "basic" and secret:
                 credential = base64.b64encode(f"{client_id}:{secret}".encode()).decode()
                 headers["Authorization"] = f"Basic {credential}"
