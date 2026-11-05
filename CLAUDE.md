@@ -20,7 +20,7 @@ venv/bin/python server.py
 
 | Flow key | UI flow | Expected response cards |
 | --- | --- | --- |
-| `oidc` | Authorization Code + PKCE | ID token and Access token |
+| `oidc` | Authorization Code + PKCE | ID token and Access token; Refresh token only when `offline_access` was requested |
 | `twoleg` | Client Credentials | Access token only |
 | `threeleg` | Custom Authorization Code + PKCE | Access token only |
 | `idjag` | ID token → ID-JAG token (RFC 8693) | ID-JAG token only; it is returned in `access_token` |
@@ -33,6 +33,9 @@ venv/bin/python server.py
 - An exchange records the flow that initiated it before the network request, so changing tabs during an in-flight request cannot misfile its response.
 - OIDC keeps both token cards. Every other flow hides the ID-token card. The `idjag` flow relabels the `access_token` card to **ID-JAG token**.
 - Token display/copy controls operate on the active flow's latest result. JWT decoding is local only and does not verify a signature.
+- OIDC refreshes use the original sign-in connection and scopes, never the current form or selected profile. Honor refresh-token rotation; preserve the old refresh token and ID token when omitted by the provider. Failed refreshes retain existing tokens and show errors only in the response panel/trace.
+- Refresh controls are shown only for an OIDC result whose original request included the exact `offline_access` scope. Copied traces must use the same redaction as displayed traces.
+- Protected-resource GET requests use only the active flow's latest successful access token; the `idjag` result is not an access token. Keep resource endpoints/results scoped per flow. Clear resource results and invalidate outstanding resource requests when tokens are cleared, replaced, or refreshed.
 - Request traces live only in browser session storage and redact secrets, tokens, authorization codes, PKCE verifiers, and nonces unless the user explicitly enables the reveal control.
 - Trace redaction matches on key name (`secret`, `token`, `authorization`, `verifier`, `code`, `nonce`). Keys ending in `Endpoint` (e.g. `tokenEndpoint`, `authorizationEndpoint`) are configuration URLs, not secret values, and must stay visible in the trace even though their names contain a matched substring.
 
@@ -49,6 +52,7 @@ venv/bin/python server.py
 ## Safety and implementation rules
 
 - Keep the server bound to `127.0.0.1` and require `https://` token endpoints.
+- Protected-resource endpoints must use HTTPS. Do not follow resource redirects or forward bearer tokens to another URL. Render resource responses as text, subject to trace/response redaction, and never log bearer tokens.
 - The HTTP server serves only the app shell (`/`, `/index.html`) and the defined `/api/*` routes. Never let static-file serving fall through to other project files (`server.py`, `profiles.json`, `appconfig`, `.agentsafe/`, `requirements.txt`, `venv/`, docs) — those must 404.
 - Use test credentials only. Do not log decrypted values or tokens.
 - Preserve callback state validation and the rule that an authorization error is never exchangeable.

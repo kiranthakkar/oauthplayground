@@ -1,9 +1,15 @@
 <!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>OAuth Playground</title><style>
 :root{--bg:#09111f;--line:#263752;--text:#edf4ff;--muted:#9aacc7;--cyan:#57d4ff;--green:#6de3b7}*{box-sizing:border-box}body{margin:0;background:radial-gradient(900px 500px at 8% -10%,#18396a 0%,transparent 66%),var(--bg);color:var(--text);font:14px/1.45 ui-sans-serif,system-ui}.shell{max-width:1320px;margin:auto;padding:30px 24px 56px}header{display:flex;justify-content:space-between;gap:20px;align-items:flex-start;margin-bottom:22px}.brand{display:flex;gap:13px;align-items:center}.mark{display:grid;place-items:center;width:42px;height:42px;border-radius:13px;background:linear-gradient(135deg,var(--cyan),#798cff);color:#07121f;font-weight:900;font-size:20px}.eyebrow{text-transform:uppercase;color:var(--cyan);font-size:11px;letter-spacing:.16em;font-weight:800}h1{font-size:28px;margin:2px 0 3px;letter-spacing:-.04em}header p,.sub{color:var(--muted);margin:0}.notice{max-width:420px;color:var(--muted);font-size:12px;border:1px solid var(--line);padding:10px 12px;border-radius:9px}.profiles{display:grid;grid-template-columns:1fr auto auto auto;gap:9px;align-items:end;margin-bottom:18px}.profiles label{margin:0}nav{display:flex;background:#0d1727;border:1px solid var(--line);border-radius:12px;padding:4px;gap:4px;margin-bottom:18px}nav button{background:transparent;border:0;color:var(--muted);padding:10px 14px;border-radius:8px;font:inherit;font-weight:700;cursor:pointer}nav button.active{background:#24344d;color:#fff}.grid{display:grid;grid-template-columns:minmax(0,1.12fr) minmax(360px,.88fr);gap:18px}.card{background:linear-gradient(145deg,#142238,#101a2b);border:1px solid var(--line);border-radius:14px;padding:20px;box-shadow:0 14px 30px #0002}.card h2{font-size:16px;margin:0 0 4px}.fields{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px}.full{grid-column:1/-1}label{display:block;color:#bdd0eb;font-size:12px;font-weight:700}input,select,textarea{display:block;width:100%;margin-top:5px;background:#0a1423;border:1px solid #344764;border-radius:7px;padding:9px 10px;color:var(--text);font:13px ui-monospace,monospace}textarea{min-height:64px;resize:vertical}.row{display:flex;gap:8px;align-items:center;margin-top:16px;flex-wrap:wrap}button{font:inherit}.primary,.secondary,.danger{border:0;border-radius:8px;padding:10px 13px;cursor:pointer;font-weight:800}.primary{background:linear-gradient(135deg,var(--cyan),#82a5ff);color:#081323}.secondary{background:#22344e;color:#e5efff;border:1px solid #405573}.danger{background:#432332;color:#ffd8dd}.hint{color:var(--muted);font-size:12px}.flow{display:none}.flow.active{display:block}.callback{border-color:#4b866f;background:#112a2d;margin-bottom:18px}.callback h2{color:var(--green)}.pill{display:inline-block;font-size:10px;text-transform:uppercase;letter-spacing:.08em;padding:3px 7px;border-radius:20px;background:#213855;color:var(--cyan);font-weight:800}.steps{padding:0;margin:18px 0 0;list-style:none;counter-reset:step}.steps li{position:relative;padding:0 0 15px 35px;color:var(--muted);counter-increment:step}.steps li:before{content:counter(step);position:absolute;left:0;top:-2px;width:23px;height:23px;border-radius:50%;display:grid;place-items:center;background:#233652;color:var(--cyan);font-size:11px;font-weight:800}.trace-tools{display:flex;gap:8px;align-items:center;margin-top:18px}.trace-tools label{margin-left:auto;font-size:11px;display:flex;align-items:center;gap:5px}.trace-tools input{width:auto;margin:0}.trace{margin-top:10px;max-height:590px;overflow:auto}.trace-entry{border:1px solid #2d405d;background:#091421;border-radius:8px;margin-bottom:8px}.trace-entry summary{padding:9px 10px;cursor:pointer;color:#cde1fa;font:12px ui-monospace,monospace}.trace-entry pre{margin:0;border-top:1px solid #2d405d;padding:11px;color:#b9d6f2;font:11px/1.5 ui-monospace,monospace;white-space:pre-wrap;word-break:break-word}.empty{color:var(--muted);padding:18px 3px}@media(max-width:850px){.grid{grid-template-columns:1fr}.fields,.profiles{grid-template-columns:1fr}header{display:block}.notice{margin-top:15px}}
+
+.metadata-import{margin-bottom:18px}.metadata-controls{display:flex;gap:10px;align-items:flex-end}.metadata-controls label{flex:1;min-width:0}.metadata-controls button{flex-shrink:0}.metadata-controls button:disabled{opacity:.6;cursor:wait}.metadata-import .hint{margin:10px 0 0}@media(max-width:850px){.metadata-controls{flex-direction:column;align-items:stretch}}
 </style></head><body><main class="shell"><header><div class="brand"><div class="mark">O</div><div><div class="eyebrow">Local developer utility</div><h1>OAuth Playground</h1><p>Exercise OIDC and OAuth flows against any authorization server.</p></div></div><div class="notice">Saved profile client secrets are encrypted in local <code>appconfig</code> using OCI KMS via <code>agentsafe</code>. They are never returned to the browser. Use test credentials only. Request traces are retained in this browser session.</div></header>
+<form class="card metadata-import" id="metadataImport">
+  <div class="metadata-controls"><label for="metadataUrl">OpenID configuration URL <input id="metadataUrl" type="url" required placeholder="https://issuer.example.com/.well-known/openid-configuration" autocomplete="off" spellcheck="false" aria-describedby="metadataStatus"></label><button class="primary" id="importMetadata" type="submit">Import endpoints</button></div>
+  <p class="hint" id="metadataStatus" role="status" aria-live="polite">Import authorization and token endpoints for all flow tabs. You can still edit them manually.</p>
+</form>
 <section class="card profiles"><label>Server profile <select id="profile"><option value="">New / unsaved configuration</option></select></label><button class="secondary" id="newProfile">New</button><button class="primary" id="saveProfile">Save profile</button><button class="danger" id="deleteProfile">Delete</button></section>
 <nav><button class="active" data-flow="oidc">OIDC · Authorization Code + PKCE</button><button data-flow="twoleg">2-legged · Client Credentials</button><button data-flow="threeleg">3-legged · Custom OAuth</button><button data-flow="idjag">ID token → ID-JAG token</button><button data-flow="jagaccess">ID-JAG token → Access token</button></nav><section id="callback" class="card callback" hidden><h2>Callback received</h2><p class="sub" id="callbackText"></p><div class="row"><button class="primary" id="exchange">Exchange code for tokens</button><button class="secondary" id="dismiss">Dismiss</button></div></section>
-<div class="grid"><section class="card"><div class="flow active" id="oidc"><h2>OpenID Connect sign-in</h2><p class="sub">Authorization Code with PKCE, state and nonce.</p><div class="fields common"></div><div class="fields"><label class="full">OIDC scopes <input data-key="oidcScopes" value="openid" placeholder="openid profile email api.read"></label><label>Nonce <input data-key="nonce" placeholder="generated automatically"></label><label>Prompt <select data-key="prompt"><option value="">Provider default</option><option selected>login</option><option>consent</option><option>select_account</option></select></label></div><div class="row"><button class="primary authorize">Start OIDC sign-in →</button></div></div>
+<div class="grid"><section class="card"><div class="flow active" id="oidc"><h2>OpenID Connect sign-in</h2><p class="sub">Authorization Code with PKCE, state and nonce.</p><div class="fields common"></div><div class="fields"><label class="full">OIDC scopes <input data-key="oidcScopes" value="openid offline_access urn:opc:idm:__myscopes__" placeholder="openid offline_access profile email"></label><label>Nonce <input data-key="nonce" placeholder="generated automatically"></label><label>Prompt <select data-key="prompt"><option value="">Provider default</option><option selected>login</option><option>consent</option><option>select_account</option></select></label></div><div class="row"><button class="primary authorize">Start OIDC sign-in →</button></div></div>
 <div class="flow" id="twoleg"><h2>2-legged OAuth</h2><p class="sub">Machine-to-machine access using Client Credentials.</p><div class="fields common"></div><div class="fields"><label class="full">Custom scopes <input data-key="customScopes" value="urn:opc:idm:__myscopes__" placeholder="api.read api.write"></label><label>Client authentication <select data-key="clientAuth"><option value="basic">HTTP Basic</option><option value="body">Request body</option></select></label></div><div class="row"><button class="primary token">Request access token →</button></div></div>
 <div class="flow" id="threeleg"><h2>3-legged OAuth</h2><p class="sub">User-delegated Authorization Code flow with custom scopes.</p><div class="fields common"></div><div class="fields"><label class="full">Custom scopes <input data-key="customScopes" value="urn:opc:idm:__myscopes__" placeholder="payments.read customers.write"></label><label>Additional authorization parameters <textarea data-key="extra" placeholder="audience=https://api.example.com&#10;resource=https://api.example.com"></textarea></label></div><div class="row"><button class="primary authorize">Ask for consent →</button></div></div>
 <div class="flow" id="idjag"><h2>ID token to ID-JAG token</h2><p class="sub">RFC 8693 token exchange using an ID token as the subject token.</p><div class="fields"><label class="full">Token endpoint <input data-key="tokenEndpoint" placeholder="https://issuer.example.com/oauth2/v1/token"></label><label>Client ID <input data-key="clientId" placeholder="your-client-id"></label><label>Client secret <input data-key="clientSecret" type="password" placeholder="client secret"></label><label>Client authentication <select data-key="clientAuth"><option value="basic">HTTP Basic</option><option value="body">Request body</option></select></label><label class="full">ID token <textarea data-key="idToken" placeholder="Paste the encoded ID token"></textarea></label><label>Scope <input data-key="customScopes" placeholder="https://api.example.com/read"></label><label>Resource <input data-key="extra" placeholder="https://api.example.com/"></label></div><div class="row"><button class="primary" id="exchangeIdJag">Exchange for ID-JAG token →</button></div></div>
@@ -13,9 +19,9 @@
 <script>
 const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];let flow='oidc',profiles=[],activeProfile='',trace=[];
 const steps={oidc:[['Generate PKCE','Create verifier, challenge, state and nonce locally.'],['Redirect','Send authorization request to the provider.'],['Callback','Validate state and capture code.'],['Exchange','Relay code and verifier to token endpoint.']],twoleg:[['Prepare','Build client credentials request.'],['Exchange','Relay Client Credentials request.'],['Inspect','Review token response.']],threeleg:[['Generate PKCE','Create verifier, challenge and state locally.'],['Consent','Redirect with custom scopes.'],['Callback','Validate state and capture code.'],['Exchange','Request delegated tokens.']]};
-function redact(v,k=''){if($('#showSecrets').checked)return v;if(/secret|token|authorization|verifier|code|nonce/i.test(k)&&!/Endpoint$/i.test(k))return typeof v==='string'&&v?`${v.slice(0,4)}… [redacted]`:v;if(v&&typeof v==='object')return Object.fromEntries(Object.entries(v).map(([x,y])=>[x,redact(y,x)]));return v}function esc(s){return s.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]))}function renderTrace(){const b=$('#trace');b.innerHTML=trace.length?trace.map((e,i)=>`<details class="trace-entry" ${i===trace.length-1?'open':''}><summary>${e.at.slice(11,19)} · ${e.kind}</summary><pre>${esc(JSON.stringify(redact(e.data),null,2))}</pre></details>`).join(''):'<p class="empty">No requests yet.</p>'}function addTrace(kind,data){trace.push({at:new Date().toISOString(),kind,data});renderTrace()}function setStatus(x){$('#status').textContent=x}function setSteps(){$('#steps').innerHTML=steps[flow].map(([a,b])=>`<li><strong>${a}</strong>${b}</li>`).join('')}function value(k){return $(`#${flow} [data-key="${k}"]`)?.value.trim()||''}function fields(){const f={authorizationEndpoint:value('authorizationEndpoint'),tokenEndpoint:value('tokenEndpoint'),clientId:value('clientId'),clientSecret:value('clientSecret'),redirectUri:value('redirectUri'),clientAuth:value('clientAuth')||'basic',nonce:value('nonce'),prompt:value('prompt'),extra:value('extra')};f.scopes=flow==='oidc'?value('oidcScopes'):value('customScopes');return f}function enc(a){return btoa(String.fromCharCode(...new Uint8Array(a))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=/g,'')}function random(){return enc(crypto.getRandomValues(new Uint8Array(32)))}async function challenge(v){return enc(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(v)))}function fillCommon(){$$('.common').forEach(x=>x.append($('#common').content.cloneNode(true)))}fillCommon();setSteps();renderTrace();
-function profileData(){return {id:activeProfile||crypto.randomUUID(),name:$('#profile').selectedOptions[0]?.textContent||'New profile',authorizationEndpoint:value('authorizationEndpoint'),tokenEndpoint:value('tokenEndpoint'),clientId:value('clientId'),clientSecret:value('clientSecret'),redirectUri:value('redirectUri'),clientAuth:value('clientAuth')||'basic',oidcScopes:value('oidcScopes'),customScopes:value('customScopes'),nonce:value('nonce'),prompt:value('prompt'),extra:value('extra')}}function applyProfile(p){Object.entries(p).forEach(([k,v])=>$$(`[data-key="${k}"]`).forEach(x=>x.value=v||''));activeProfile=p.id;$('#profile').value=p.id;addTrace('Profile loaded',{name:p.name,id:p.id})}function renderProfiles(){const s=$('#profile');s.innerHTML='<option value="">New / unsaved configuration</option>'+profiles.map(p=>`<option value="${p.id}">${esc(p.name)}</option>`).join('');if(activeProfile)s.value=activeProfile}async function loadProfiles(){profiles=await (await fetch('/api/profiles')).json();renderProfiles()}$('#profile').onchange=e=>{const p=profiles.find(x=>x.id===e.target.value);if(p)applyProfile(p);else activeProfile=''};$('#newProfile').onclick=()=>{activeProfile='';$('#profile').value='';$$('[data-key]').forEach(x=>{if(x.dataset.key!=='redirectUri')x.value=''});addTrace('New profile',{})};$('#saveProfile').onclick=async()=>{let old=profiles.find(x=>x.id===activeProfile),name=prompt('Profile name',old?.name||'');if(!name)return;const p={...profileData(),name},r=await fetch('/api/profiles',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(p)});if(!r.ok)return addTrace('Profile save failed',await r.json());activeProfile=p.id;await loadProfiles();$('#profile').value=p.id;addTrace('Profile saved',{name,id:p.id})};$('#deleteProfile').onclick=async()=>{if(!activeProfile)return;const p=profiles.find(x=>x.id===activeProfile);if(!confirm(`Delete profile “${p?.name}”?`))return;await fetch(`/api/profiles/${activeProfile}`,{method:'DELETE'});addTrace('Profile deleted',{name:p?.name,id:activeProfile});activeProfile='';await loadProfiles()};
-$$('nav button').forEach(b=>b.onclick=()=>{flow=b.dataset.flow;$$('nav button').forEach(x=>x.classList.toggle('active',x===b));$$('.flow').forEach(x=>x.classList.toggle('active',x.id===flow));setSteps();setStatus('Ready');addTrace('Flow selected',{flow})});async function startAuthorization(){const f=fields();if(!f.authorizationEndpoint||!f.clientId)return addTrace('Validation error',{error:'Authorization endpoint and client ID are required.'});const verifier=random(),state=random(),nonce=f.nonce||random(),q=new URLSearchParams({response_type:'code',client_id:f.clientId,redirect_uri:f.redirectUri,scope:f.scopes,state,code_challenge:await challenge(verifier),code_challenge_method:'S256'});if(flow==='oidc')q.set('nonce',nonce);if(f.prompt)q.set('prompt',f.prompt);if(f.extra)f.extra.split(/\n+/).forEach(line=>{const[k,...v]=line.split('=');if(k&&v.length)q.set(k.trim(),v.join('=').trim())});const url=`${f.authorizationEndpoint}?${q}`;sessionStorage.setItem('oauth-playground-pending',JSON.stringify({...f,flow,verifier,state,nonce,trace}));addTrace('Authorization request',{method:'GET',url,parameters:Object.fromEntries(q)});setStatus('Redirecting');location.assign(url)}async function requestToken(pending,params){setStatus('Requesting token');addTrace('Token request to local relay',{method:'POST',url:'/api/token',body:{...pending,params}});try{const r=await fetch('/api/token',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({...pending,params})}),data=await r.json();setStatus(r.ok?'Token received':'Request failed');addTrace('Token response',{status:r.status,body:data})}catch(e){setStatus('Request failed');addTrace('Token request failure',{error:e.message})}}$$('.authorize').forEach(b=>b.onclick=startAuthorization);$$('.token').forEach(b=>b.onclick=()=>{const f=fields();if(!f.tokenEndpoint||!f.clientId)return addTrace('Validation error',{error:'Token endpoint and client ID are required.'});requestToken(f,{grant_type:'client_credentials',scope:f.scopes})});$('#showSecrets').onchange=renderTrace;$('#clearTrace').onclick=()=>{trace=[];renderTrace()};$('#copyTrace').onclick=()=>navigator.clipboard.writeText(JSON.stringify(trace,null,2)).then(()=>setStatus('Trace copied'));
+function redact(v,k=''){if($('#showSecrets').checked)return v;if(/secret|token|authorization|verifier|code|nonce/i.test(k)&&!/Endpoint$/i.test(k))return typeof v==='string'&&v?`${v.slice(0,4)}… [redacted]`:v;if(Array.isArray(v))return v.map(item=>redact(item));if(v&&typeof v==='object')return Object.fromEntries(Object.entries(v).map(([x,y])=>[x,redact(y,x)]));return v}function esc(s){return s.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]))}function renderTrace(){const b=$('#trace');b.innerHTML=trace.length?trace.map((e,i)=>`<details class="trace-entry" ${i===trace.length-1?'open':''}><summary>${e.at.slice(11,19)} · ${e.kind}</summary><pre>${esc(JSON.stringify(redact(e.data),null,2))}</pre></details>`).join(''):'<p class="empty">No requests yet.</p>'}function addTrace(kind,data){trace.push({at:new Date().toISOString(),kind,data});renderTrace()}function setStatus(x){$('#status').textContent=x}function setSteps(){$('#steps').innerHTML=steps[flow].map(([a,b])=>`<li><strong>${a}</strong>${b}</li>`).join('')}function value(k){return $(`#${flow} [data-key="${k}"]`)?.value.trim()||''}function fields(){const f={authorizationEndpoint:value('authorizationEndpoint'),tokenEndpoint:value('tokenEndpoint'),clientId:value('clientId'),clientSecret:value('clientSecret'),redirectUri:value('redirectUri'),clientAuth:value('clientAuth')||'basic',nonce:value('nonce'),prompt:value('prompt'),extra:value('extra')};f.scopes=flow==='oidc'?value('oidcScopes'):value('customScopes');return f}function enc(a){return btoa(String.fromCharCode(...new Uint8Array(a))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=/g,'')}function random(){return enc(crypto.getRandomValues(new Uint8Array(32)))}async function challenge(v){return enc(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(v)))}function fillCommon(){$$('.common').forEach(x=>{const common=$('#common').content.cloneNode(true);if(x.closest('.flow').id==='twoleg')common.querySelector('[data-key="authorizationEndpoint"]').closest('label').remove();x.append(common)})}fillCommon();setSteps();renderTrace();
+function profileData(){return {id:activeProfile||crypto.randomUUID(),name:$('#profile').selectedOptions[0]?.textContent||'New profile',authorizationEndpoint:flow==='twoleg'?$('#oidc [data-key="authorizationEndpoint"]').value.trim():value('authorizationEndpoint'),tokenEndpoint:value('tokenEndpoint'),clientId:value('clientId'),clientSecret:value('clientSecret'),redirectUri:value('redirectUri'),clientAuth:value('clientAuth')||'basic',oidcScopes:value('oidcScopes'),customScopes:value('customScopes'),nonce:value('nonce'),prompt:value('prompt'),extra:value('extra')}}function applyProfile(p){Object.entries(p).forEach(([k,v])=>$$(`[data-key="${k}"]`).forEach(x=>x.value=v||''));activeProfile=p.id;$('#profile').value=p.id;addTrace('Profile loaded',{name:p.name,id:p.id})}function renderProfiles(){const s=$('#profile');s.innerHTML='<option value="">New / unsaved configuration</option>'+profiles.map(p=>`<option value="${p.id}">${esc(p.name)}</option>`).join('');if(activeProfile)s.value=activeProfile}async function loadProfiles(){profiles=await (await fetch('/api/profiles')).json();renderProfiles()}$('#profile').onchange=e=>{const p=profiles.find(x=>x.id===e.target.value);if(p)applyProfile(p);else activeProfile=''};$('#newProfile').onclick=()=>{activeProfile='';$('#profile').value='';$$('[data-key]').forEach(x=>{if(x.dataset.key!=='redirectUri')x.value=''});addTrace('New profile',{})};$('#saveProfile').onclick=async()=>{let old=profiles.find(x=>x.id===activeProfile),name=prompt('Profile name',old?.name||'');if(!name)return;const p={...profileData(),name},r=await fetch('/api/profiles',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(p)});if(!r.ok)return addTrace('Profile save failed',await r.json());activeProfile=p.id;await loadProfiles();$('#profile').value=p.id;addTrace('Profile saved',{name,id:p.id})};$('#deleteProfile').onclick=async()=>{if(!activeProfile)return;const p=profiles.find(x=>x.id===activeProfile);if(!confirm(`Delete profile “${p?.name}”?`))return;await fetch(`/api/profiles/${activeProfile}`,{method:'DELETE'});addTrace('Profile deleted',{name:p?.name,id:activeProfile});activeProfile='';await loadProfiles()};
+$$('nav button').forEach(b=>b.onclick=()=>{flow=b.dataset.flow;$$('nav button').forEach(x=>x.classList.toggle('active',x===b));$$('.flow').forEach(x=>x.classList.toggle('active',x.id===flow));setSteps();setStatus('Ready');addTrace('Flow selected',{flow})});function hasScope(scopes,scope){return String(scopes||'').split(/\s+/).includes(scope)}async function startAuthorization(){const authorizationFlow=flow,f=fields();if(!f.authorizationEndpoint||!f.clientId)return addTrace('Validation error',{error:'Authorization endpoint and client ID are required.'});const verifier=random(),state=random(),nonce=f.nonce||random(),q=new URLSearchParams({response_type:'code',client_id:f.clientId,redirect_uri:f.redirectUri,scope:f.scopes,state,code_challenge:await challenge(verifier),code_challenge_method:'S256'});if(authorizationFlow==='oidc')q.set('nonce',nonce);if(f.prompt)q.set('prompt',f.prompt);if(f.extra)f.extra.split(/\n+/).forEach(line=>{const[k,...v]=line.split('=');if(k&&v.length)q.set(k.trim(),v.join('=').trim())});const url=`${f.authorizationEndpoint}?${q}`;sessionStorage.setItem('oauth-playground-pending',JSON.stringify({...f,flow:authorizationFlow,verifier,state,nonce,trace}));addTrace('Authorization request',{method:'GET',url,parameters:Object.fromEntries(q)});setStatus('Redirecting');location.assign(url)}async function requestToken(pending,params){setStatus('Requesting token');addTrace('Token request to local relay',{method:'POST',url:'/api/token',body:{...pending,params}});try{const r=await fetch('/api/token',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({...pending,params})}),data=await r.json();setStatus(r.ok?'Token received':'Request failed');addTrace('Token response',{status:r.status,body:data})}catch(e){setStatus('Request failed');addTrace('Token request failure',{error:e.message})}}$$('.authorize').forEach(b=>b.onclick=startAuthorization);$$('.token').forEach(b=>b.onclick=()=>{const f=fields();if(!f.tokenEndpoint||!f.clientId)return addTrace('Validation error',{error:'Token endpoint and client ID are required.'});requestToken(f,{grant_type:'client_credentials',scope:f.scopes})});$('#showSecrets').onchange=()=>{renderTrace();renderTokenResult();};$('#clearTrace').onclick=()=>{trace=[];renderTrace()};$('#copyTrace').onclick=()=>navigator.clipboard.writeText(JSON.stringify(redact(trace),null,2)).then(()=>setStatus('Trace copied'));
 const query=new URLSearchParams(location.search),pending=JSON.parse(sessionStorage.getItem('oauth-playground-pending')||'null');if(pending?.trace)trace=pending.trace;if(query.has('code')||query.has('error')){$('#callback').hidden=false;const valid=pending&&query.get('state')===pending.state;$('#callbackText').textContent=query.get('error')?`Provider returned ${query.get('error')}: ${query.get('error_description')||''}`:`Authorization code received. ${valid?'State validated.':'State could not be validated.'}`;addTrace('Authorization callback',{parameters:Object.fromEntries(query),stateValid:valid});$('#exchange').onclick=()=>{if(!pending||!valid)return addTrace('Exchange blocked',{error:'State mismatch or no saved pending flow.'});requestToken(pending,{grant_type:'authorization_code',code:query.get('code'),redirect_uri:pending.redirectUri,code_verifier:pending.verifier})};$('#dismiss').onclick=()=>{history.replaceState({},'',location.pathname);$('#callback').hidden=true}}loadProfiles().catch(e=>addTrace('Profile loading failed',{error:e.message}));
 </script><script>
 /* Callback guard: an OAuth error is not exchangeable, even if a state value exists. */
@@ -45,9 +51,10 @@ fetch('/api/secrets-status').then(async response => {
   addTrace('Encrypted profile storage unavailable', {code:status.code, error:status.error});
 }).catch(error => addTrace('Encrypted profile storage check failed', {error:error.message}));
 </script><script>
-/* Show the actual returned tokens separately; request traces remain redacted by default. */
+/* Show tokens separately; traces and copied traces are redacted by default. */
 let latestTokenResult = null;
 const tokenResultsByFlow = {};
+const tokenRequestsByFlow = {};
 const tokenView = {idToken: 'encoded', accessToken: 'encoded'};
 const tokenResponseLayout = {
   oidc: {showIdToken: true, tokenLabel: 'Access token'},
@@ -63,16 +70,20 @@ function tokenResultPanel() {
   panel.id = 'tokenResult';
   panel.className = 'card';
   panel.style.marginTop = '18px';
-  panel.innerHTML = `<h2>Token exchange response</h2><p class="sub" id="tokenResultStatus"></p>
+  panel.innerHTML = `<div class="row" style="margin-top:0;justify-content:space-between;align-items:flex-start"><div><h2>Token exchange response</h2><p class="sub" id="tokenResultStatus"></p></div><button class="secondary" id="clearTokens" type="button">Clear</button></div>
     <div class="fields" style="margin-top:16px">
       <section class="card" id="idTokenCard" style="padding:14px"><div class="row" style="margin-top:0;justify-content:space-between"><h3 style="margin:0">ID token</h3><button class="secondary" id="copyIdToken">Copy encoded token</button></div><label class="hint"><input type="checkbox" id="decodeIdToken"> Show decoded token</label><pre id="idTokenValue" style="max-height:260px;overflow:auto;background:#07111e;padding:12px;border-radius:8px;white-space:pre-wrap;word-break:break-word"></pre></section>
       <section class="card" style="padding:14px"><div class="row" style="margin-top:0;justify-content:space-between"><h3 id="accessTokenLabel" style="margin:0">Access token</h3><button class="secondary" id="copyAccessToken">Copy encoded token</button></div><label class="hint"><input type="checkbox" id="decodeAccessToken"> Show decoded token</label><pre id="accessTokenValue" style="max-height:260px;overflow:auto;background:#07111e;padding:12px;border-radius:8px;white-space:pre-wrap;word-break:break-word"></pre></section>
+      <section class="card full" id="refreshTokenCard" hidden style="padding:14px"><div class="row" style="margin-top:0;justify-content:space-between"><h3 style="margin:0">Refresh token</h3><button class="secondary" id="copyRefreshToken">Copy encoded token</button></div><p class="hint" id="refreshTokenHint"></p><pre id="refreshTokenValue" style="max-height:180px;overflow:auto;background:#07111e;padding:12px;border-radius:8px;white-space:pre-wrap;word-break:break-word"></pre><div class="row"><button class="primary" id="refreshAccessToken">Refresh access token</button><span class="hint" id="refreshTokenStatus" role="status" aria-live="polite"></span></div></section>
     </div><pre id="tokenResultError" hidden style="margin-top:14px;max-height:180px;overflow:auto;background:#07111e;padding:12px;border-radius:8px;white-space:pre-wrap;word-break:break-word"></pre>`;
-  document.querySelector('#callback').after(panel);
+  (document.querySelector('#callback') || document.querySelector('nav')).after(panel);
   panel.querySelector('#decodeIdToken').onchange = event => { tokenView.idToken = event.target.checked ? 'decoded' : 'encoded'; renderTokenResult(); };
   panel.querySelector('#decodeAccessToken').onchange = event => { tokenView.accessToken = event.target.checked ? 'decoded' : 'encoded'; renderTokenResult(); };
   panel.querySelector('#copyIdToken').onclick = () => copyEncodedToken('id_token');
   panel.querySelector('#copyAccessToken').onclick = () => copyEncodedToken('access_token');
+  panel.querySelector('#copyRefreshToken').onclick = () => copyEncodedToken('refresh_token');
+  panel.querySelector('#refreshAccessToken').onclick = refreshOidcToken;
+  panel.querySelector('#clearTokens').onclick = clearTokenResult;
   return panel;
 }
 function decodeJwt(token) {
@@ -87,76 +98,260 @@ function tokenDisplay(token, view) {
   try { return JSON.stringify(decodeJwt(token), null, 2); } catch (error) { return error.message; }
 }
 function copyEncodedToken(key) {
-  const token = latestTokenResult?.body?.[key];
-  if (!token) return setStatus(`No ${key === 'id_token' ? 'ID' : 'access'} token to copy`);
-  navigator.clipboard.writeText(token).then(() => setStatus(`${key === 'id_token' ? 'ID' : 'Access'} token copied`));
+  const result = tokenResultsByFlow[flow];
+  if (key === 'refresh_token' && (flow !== 'oidc' || !result?.offlineAccess)) return;
+  const token = result?.body?.[key];
+  const label = key === 'id_token' ? 'ID' : key === 'refresh_token' ? 'Refresh' : 'Access';
+  if (!token) return setStatus(`No ${label.toLowerCase()} token to copy`);
+  navigator.clipboard.writeText(token).then(() => setStatus(`${label} token copied`));
+}
+function clearTokenResult() {
+  const activeRequest = tokenRequestsByFlow[flow];
+  delete tokenResultsByFlow[flow];
+  resetProtectedResource(flow);
+  // Discard late exchange/refresh responses so cleared tokens cannot reappear.
+  delete tokenRequestsByFlow[flow];
+  if (activeRequest?.button) {
+    activeRequest.button.disabled = false;
+    activeRequest.button.textContent = 'Exchange code for tokens';
+  }
+  document.querySelector('#tokenResult')?.remove();
+  renderTokenResult();
+  setStatus('Tokens cleared');
+  addTrace('Token response cleared', {flow});
 }
 function renderTokenResult() {
   latestTokenResult = tokenResultsByFlow[flow] || null;
   const existingPanel = document.querySelector('#tokenResult');
   if (!latestTokenResult) {
     if (existingPanel) existingPanel.hidden = true;
+    renderProtectedResource();
     return;
   }
-  const {status, body} = latestTokenResult, panel = tokenResultPanel();
+  const {status, body, refreshError} = latestTokenResult, panel = tokenResultPanel();
   panel.hidden = false;
   const layout = tokenResponseLayout[flow] || tokenResponseLayout.oidc;
-  panel.querySelector('#tokenResultStatus').textContent = `HTTP ${status}`;
+  panel.querySelector('#tokenResultStatus').textContent = refreshError
+    ? `Refresh failed (HTTP ${refreshError.status}); previous tokens retained.`
+    : `HTTP ${status}${latestTokenResult.refreshedAt ? ' · Access token refreshed at ' + new Date(latestTokenResult.refreshedAt).toLocaleTimeString() : ''}`;
   panel.querySelector('#idTokenCard').hidden = !layout.showIdToken;
   panel.querySelector('#accessTokenLabel').textContent = layout.tokenLabel;
   panel.querySelector('#idTokenValue').textContent = tokenDisplay(body.id_token, tokenView.idToken);
   panel.querySelector('#accessTokenValue').textContent = tokenDisplay(body.access_token, tokenView.accessToken);
   panel.querySelector('#decodeIdToken').checked = tokenView.idToken === 'decoded';
   panel.querySelector('#decodeAccessToken').checked = tokenView.accessToken === 'decoded';
+  const showRefresh = flow === 'oidc' && latestTokenResult.offlineAccess;
+  panel.querySelector('#refreshTokenCard').hidden = !showRefresh;
+  // Clear hidden refresh content when rendering another flow.
+  panel.querySelector('#refreshTokenValue').textContent = showRefresh ? tokenDisplay(body.refresh_token, 'encoded') : '';
+  panel.querySelector('#copyRefreshToken').disabled = !showRefresh || !body.refresh_token;
+  panel.querySelector('#refreshAccessToken').disabled = !showRefresh || !body.refresh_token || Boolean(tokenRequestsByFlow.oidc);
+  panel.querySelector('#refreshAccessToken').textContent = latestTokenResult.refreshing ? 'Refreshing…' : 'Refresh access token';
+  panel.querySelector('#refreshTokenHint').textContent = body.refresh_token
+    ? 'Use this token to request a new access token without signing in again.'
+    : 'offline_access was requested, but the provider did not return a refresh token. Check client permissions and consent, then sign in again.';
+  panel.querySelector('#refreshTokenStatus').textContent = latestTokenResult.refreshing ? 'Requesting a new access token…' : latestTokenResult.refreshMessage || '';
   const error = panel.querySelector('#tokenResultError');
   const hasTokens = body.id_token || body.access_token;
-  error.hidden = Boolean(hasTokens);
-  if (!hasTokens) error.textContent = JSON.stringify(redact(body), null, 2);
+  error.hidden = !refreshError && Boolean(hasTokens);
+  if (!error.hidden) error.textContent = JSON.stringify(redact(refreshError || body), null, 2);
+  renderProtectedResource();
 }
-function showTokenResult(status, body, resultFlow = flow) {
-  tokenResultsByFlow[resultFlow] = {status, body};
+function showTokenResult(status, body, resultFlow = flow, config = {}) {
+  resetProtectedResource(resultFlow);
+  // Keep only connection fields needed to refresh; never retain the code or PKCE verifier here.
+  const requestConfig = Object.fromEntries(['profileId', 'tokenEndpoint', 'clientId', 'clientSecret', 'clientAuth'].map(key => [key, config[key] || '']));
+  tokenResultsByFlow[resultFlow] = {
+    status, body,
+    offlineAccess: resultFlow === 'oidc' && hasScope(config.scopes, 'offline_access'),
+    requestConfig: resultFlow === 'oidc' ? {...requestConfig, flow: 'oidc'} : null,
+  };
   if (resultFlow === flow) renderTokenResult();
+}
+async function fetchTokenResponse(relayPath, relayPayload) {
+  const response = await fetch(relayPath, {method:'POST', headers:{'content-type':'application/json'}, body:JSON.stringify(relayPayload)});
+  const text = await response.text();
+  let body;
+  try { body = JSON.parse(text); } catch { body = {raw:text}; }
+  if (!body || typeof body !== 'object' || Array.isArray(body)) body = {raw:text};
+  return {ok: response.ok, status: response.status, body};
+}
+async function refreshOidcToken() {
+  const session = tokenResultsByFlow.oidc;
+  if (flow !== 'oidc' || !session?.offlineAccess || !session.body.refresh_token || tokenRequestsByFlow.oidc) return;
+  const marker = {};
+  tokenRequestsByFlow.oidc = marker;
+  session.refreshing = true;
+  session.refreshError = null;
+  session.refreshMessage = '';
+  renderTokenResult();
+  const relayPayload = {...session.requestConfig, params: {grant_type: 'refresh_token', refresh_token: session.body.refresh_token}};
+  setStatus('Refreshing access token');
+  addTrace('Refresh token request', {method:'POST', url:'/api/token', body:relayPayload});
+  try {
+    const {ok, status, body} = await fetchTokenResponse('/api/token', relayPayload);
+    addTrace('Refresh token response', {status, body});
+    // A newer sign-in/exchange owns the panel if it replaced this request or session.
+    if (tokenRequestsByFlow.oidc !== marker || tokenResultsByFlow.oidc !== session) return;
+    if (!ok || body.error || typeof body.access_token !== 'string' || !body.access_token) {
+      session.refreshError = {status, body: ok && !body.error ? {error:'invalid_token_response', error_description:'The token endpoint did not return an access token.'} : body};
+      if (flow === 'oidc') setStatus('Refresh failed');
+      return;
+    }
+    resetProtectedResource('oidc');
+    session.body = {
+      ...body,
+      id_token: body.id_token || session.body.id_token,
+      refresh_token: body.refresh_token || session.body.refresh_token,
+    };
+    session.status = status;
+    session.refreshedAt = new Date().toISOString();
+    session.refreshMessage = body.id_token
+      ? 'Access token updated. The provider also returned a new ID token.'
+      : 'Access token updated. The previous ID token is retained; the provider did not return a new one.';
+    if (flow === 'oidc') setStatus('Access token refreshed');
+  } catch (error) {
+    addTrace('Refresh token failure', {error:error.message});
+    if (tokenRequestsByFlow.oidc === marker && tokenResultsByFlow.oidc === session) {
+      session.refreshError = {status:0, body:{error:error.message}};
+      if (flow === 'oidc') setStatus('Refresh failed');
+    }
+  } finally {
+    session.refreshing = false;
+    if (tokenRequestsByFlow.oidc === marker) delete tokenRequestsByFlow.oidc;
+    if (flow === 'oidc') renderTokenResult();
+  }
 }
 requestToken = async (pendingConfig, params, relayPath = '/api/token', endpointPayload = {}) => {
   const requestFlow = pendingConfig?.flow || flow;
   if (!params.code && params.grant_type === 'authorization_code') {
     setStatus('No authorization code');
     addTrace('Token exchange blocked', {error:'The callback did not contain an authorization code.'});
-    showTokenResult(400, {error:'No authorization code was available to exchange.'}, requestFlow);
+    showTokenResult(400, {error:'No authorization code was available to exchange.'}, requestFlow, pendingConfig);
     return;
   }
-  const button = document.querySelector('#exchange');
-  if (button) { button.disabled = true; button.textContent = 'Exchanging…'; }
-  setStatus('Requesting token');
-  // ``trace`` is browser-only state and can contain this very trace entry.
-  // Never include it in the request or the trace payload.
+  const marker = {};
+  tokenRequestsByFlow[requestFlow] = marker;
+  if (requestFlow === flow) renderTokenResult();
+  const button = params.grant_type === 'authorization_code' ? document.querySelector('#exchange') : null;
+  if (button) { marker.button = button; button.disabled = true; button.textContent = 'Exchanging…'; }
+  if (requestFlow === flow) setStatus('Requesting token');
   const {trace: _browserTrace, ...requestConfig} = pendingConfig || {};
   const relayPayload = {...requestConfig, ...endpointPayload, params};
   addTrace('Token request to local relay', {method:'POST', url:relayPath, body:relayPayload});
   try {
-    const response = await fetch(relayPath, {method:'POST', headers:{'content-type':'application/json'}, body:JSON.stringify(relayPayload)});
-    const text = await response.text();
-    let body;
-    try { body = JSON.parse(text); } catch { body = {raw:text}; }
-    setStatus(response.ok ? 'Token received' : 'Token request failed');
-    addTrace('Token response', {status:response.status, body});
-    showTokenResult(response.status, body, requestFlow);
-    if (response.ok) document.querySelector('#callback')?.remove();
+    const {ok, status, body} = await fetchTokenResponse(relayPath, relayPayload);
+    addTrace('Token response', {status, body});
+    if (tokenRequestsByFlow[requestFlow] !== marker) return;
+    if (requestFlow === flow) setStatus(ok ? 'Token received' : 'Token request failed');
+    showTokenResult(status, body, requestFlow, requestConfig);
+    if (ok && params.grant_type === 'authorization_code') document.querySelector('#callback')?.remove();
   } catch (error) {
-    setStatus('Token request failed');
     const body = {error:error.message};
     addTrace('Token request failure', body);
-    showTokenResult(0, body, requestFlow);
+    if (tokenRequestsByFlow[requestFlow] === marker) {
+      if (requestFlow === flow) setStatus('Token request failed');
+      showTokenResult(0, body, requestFlow, requestConfig);
+    }
   } finally {
-    if (button) { button.disabled = false; button.textContent = 'Exchange code for tokens'; }
+    if (tokenRequestsByFlow[requestFlow] === marker) {
+      delete tokenRequestsByFlow[requestFlow];
+      if (button) { button.disabled = false; button.textContent = 'Exchange code for tokens'; }
+      if (requestFlow === flow) renderTokenResult();
+    }
   }
 };
+
+const DEFAULT_RESOURCE_ENDPOINT = 'https://idcs-ff3532e3a9ba4bd7887f5cf49e2ae425.identity.oraclecloud.com/admin/v1/Users';
+const resourceStateByFlow = {};
+const resourceRequestsByFlow = {};
+function resourceState(resultFlow) {
+  return resourceStateByFlow[resultFlow] ||= {endpoint: DEFAULT_RESOURCE_ENDPOINT, result: null};
+}
+function resourceAccessToken(resultFlow = flow) {
+  const result = tokenResultsByFlow[resultFlow];
+  if (resultFlow === 'idjag' || !result || result.status < 200 || result.status >= 300 || result.body.error) return '';
+  return typeof result.body.access_token === 'string' ? result.body.access_token : '';
+}
+function resetProtectedResource(resultFlow) {
+  delete resourceRequestsByFlow[resultFlow];
+  if (resourceStateByFlow[resultFlow]) resourceStateByFlow[resultFlow].result = null;
+}
+function protectedResourcePanel() {
+  let panel = document.querySelector('#protectedResource');
+  if (panel) return panel;
+  panel = document.createElement('section');
+  panel.id = 'protectedResource';
+  panel.className = 'card';
+  panel.style.marginTop = '18px';
+  panel.innerHTML = `<h2>Access Protected Resource</h2>
+    <p class="sub">Use the latest access token from this tab, including refreshed tokens.</p>
+    <form id="resourceForm">
+      <div class="fields"><label class="full" for="resourceEndpoint">Resource endpoint <input id="resourceEndpoint" type="url" required autocomplete="off" spellcheck="false" placeholder="https://api.example.com/resource"></label></div>
+      <div class="row"><button class="primary" id="getResource" type="submit">GET resource</button><span class="hint" id="resourceStatus" role="status" aria-live="polite"></span></div>
+    </form>
+    <pre id="resourceResponse" hidden style="margin-top:16px;max-height:460px;overflow:auto;background:#07111e;padding:12px;border-radius:8px;white-space:pre-wrap;word-break:break-word"></pre>`;
+  document.querySelector('#tokenResult').after(panel);
+  panel.querySelector('#resourceForm').onsubmit = event => { event.preventDefault(); requestProtectedResource(); };
+  panel.querySelector('#resourceEndpoint').oninput = event => {
+    resourceState(flow).endpoint = event.target.value;
+    resetProtectedResource(flow);
+    renderProtectedResource();
+  };
+  return panel;
+}
+function renderProtectedResource() {
+  if (!resourceAccessToken()) {
+    document.querySelector('#protectedResource')?.remove();
+    return;
+  }
+  const panel = protectedResourcePanel(), state = resourceState(flow);
+  const input = panel.querySelector('#resourceEndpoint');
+  if (input.value !== state.endpoint) input.value = state.endpoint;
+  const pending = Boolean(resourceRequestsByFlow[flow]);
+  panel.querySelector('#getResource').disabled = pending || Boolean(tokenRequestsByFlow[flow]);
+  panel.querySelector('#getResource').textContent = pending ? 'Requesting…' : 'GET resource';
+  const status = panel.querySelector('#resourceStatus');
+  status.textContent = pending ? 'Requesting protected resource…' : state.result
+    ? (state.result.status ? `HTTP ${state.result.status}${state.result.contentType ? ' · ' + state.result.contentType : ''}` : 'Request failed (network error).')
+    : 'Ready to send a GET request.';
+  const response = panel.querySelector('#resourceResponse');
+  response.hidden = !state.result;
+  const body = state.result ? redact(state.result.body) : '';
+  response.textContent = typeof body === 'string' ? body || (state.result ? 'Empty response.' : '') : JSON.stringify(body, null, 2);
+}
+async function requestProtectedResource() {
+  const requestFlow = flow, token = resourceAccessToken(requestFlow);
+  if (!token || resourceRequestsByFlow[requestFlow] || tokenRequestsByFlow[requestFlow]) return;
+  const state = resourceState(requestFlow), endpoint = state.endpoint.trim();
+  const tokenResult = tokenResultsByFlow[requestFlow], marker = {};
+  resourceRequestsByFlow[requestFlow] = marker;
+  state.result = null;
+  renderProtectedResource();
+  addTrace('Protected resource request', {flow:requestFlow, method:'GET', resourceEndpoint:endpoint, headers:{Authorization:`Bearer ${token}`}});
+  const isCurrent = () => resourceRequestsByFlow[requestFlow] === marker
+    && tokenResultsByFlow[requestFlow] === tokenResult && resourceAccessToken(requestFlow) === token;
+  try {
+    const response = await fetchTokenResponse('/api/resource', {resourceEndpoint:endpoint, accessToken:token});
+    const result = response.ok && Number.isInteger(response.body.status)
+      ? response.body : {status:response.status, contentType:'application/json', body:response.body};
+    addTrace('Protected resource response', {flow:requestFlow, ...result});
+    if (isCurrent()) state.result = result;
+  } catch (error) {
+    const result = {status:0, body:{error:error.message}};
+    addTrace('Protected resource failure', {flow:requestFlow, ...result});
+    if (isCurrent()) state.result = result;
+  } finally {
+    if (resourceRequestsByFlow[requestFlow] === marker) delete resourceRequestsByFlow[requestFlow];
+    if (requestFlow === flow) renderProtectedResource();
+  }
+}
 </script><script>
 /* Profile-specific state belongs in the normal functions, without deferred wrappers. */
 const baseFields = fields;
 fields = () => ({...baseFields(), profileId: activeProfile});
 function setFlowDefaults() {
-  $('#oidc [data-key="oidcScopes"]').value = 'openid';
+  $('#oidc [data-key="oidcScopes"]').value = 'openid offline_access urn:opc:idm:__myscopes__';
   $('#oidc [data-key="nonce"]').value = '';
   $('#oidc [data-key="prompt"]').value = 'login';
   $('#twoleg [data-key="customScopes"]').value = 'urn:opc:idm:__myscopes__';
@@ -207,4 +402,39 @@ $('#exchangeJagAccess').onclick = () => {
 };
 /* Keep the visible response aligned with the active flow after tab changes. */
 $$('nav button').forEach(button => button.addEventListener('click', renderTokenResult));
+</script><script>
+$('#metadataImport').onsubmit = async event => {
+  event.preventDefault();
+  const metadataUrl = $('#metadataUrl').value.trim();
+  const button = $('#importMetadata'), message = $('#metadataStatus');
+  const selectedProfile = activeProfile;
+  button.disabled = true;
+  button.textContent = 'Importing…';
+  message.textContent = 'Loading OpenID configuration…';
+  try {
+    const response = await fetch('/api/discovery', {
+      method: 'POST',
+      headers: {'content-type': 'application/json'},
+      body: JSON.stringify({metadataUrl}),
+    });
+    const endpoints = await response.json();
+    if (!response.ok) throw new Error(endpoints.error || 'Metadata import failed.');
+    if (activeProfile !== selectedProfile) throw new Error('The selected profile changed during import. Please import again.');
+    for (const key of ['authorizationEndpoint', 'tokenEndpoint']) {
+      $$(`[data-key="${key}"]`).forEach(input => { input.value = endpoints[key]; });
+    }
+    message.textContent = activeProfile
+      ? 'Endpoints imported for all flow tabs. Save the selected profile before exchanging tokens with these endpoints.'
+      : 'Endpoints imported for all flow tabs. You can continue or save them in a profile.';
+    setStatus('Endpoints imported');
+    addTrace('OpenID configuration imported', {metadataUrl, ...endpoints});
+  } catch (error) {
+    message.textContent = error.message;
+    setStatus('Metadata import failed');
+    addTrace('OpenID configuration import failed', {error: error.message});
+  } finally {
+    button.disabled = false;
+    button.textContent = 'Import endpoints';
+  }
+};
 </script></body></html>
